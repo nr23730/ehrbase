@@ -39,7 +39,7 @@ public interface TerminologyServer<T, ID> {
 	 * @param conceptId
 	 * @return A complex Object of type T that contains all the attributes directly associated to the concept identified by the provided ID.
 	 */
-	T lookUp(ID conceptId);
+	T lookup(ID conceptId);
 	/**
 	 * Evaluates if the concept provided T belongs to the value set identified by the provided ID.
 	 * @param concept to evaluate.
