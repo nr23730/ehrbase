@@ -17,20 +17,23 @@
  */
 package org.ehrbase.aql.compiler.tsclient;
 
-import java.util.ArrayList;
+import com.jayway.jsonpath.JsonPath;
+import org.springframework.web.client.RestTemplate;
+
 import java.util.List;
 /***
  *@Created by Luis Marco-Ruiz on Feb 12, 2020
  */
 public class FhirTerminologyServerImpl  implements TerminologyServer<String, String>{
 
+	RestTemplate restTemplate = new RestTemplate();
+
 	@Override
 	public List expand(String valueSetId) {
-		List<String> result = new ArrayList();
-		result.add("48377-6");
-		result.add("27478-7");
-		result.add("52539-9");
-		return result;
+		String response = restTemplate.getForObject(valueSetId, String.class);
+		return JsonPath
+				.parse(response)
+				.read("$.expansion.contains.*.code", List.class);
 	}
 
 	@Override
