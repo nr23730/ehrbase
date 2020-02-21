@@ -49,9 +49,11 @@ public class FhirTerminologyServerImpl  implements TerminologyServer<String, Str
 	}
 
 	@Override
-	public String lookUp(String conceptId) {
-		// TODO Auto-generated method stub
-		return null;
+	public String lookup(String conceptId) {
+		String response = restTemplate.getForObject(conceptId, String.class);
+		return JsonPath
+				.parse(response)
+				.read("$.parameter[?(@.name=='display')].valueString", String.class);
 	}
 
 }

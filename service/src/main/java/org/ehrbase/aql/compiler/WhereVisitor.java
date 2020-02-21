@@ -29,8 +29,11 @@ import org.ehrbase.aql.parser.AqlParser;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Interpret an AQL WHERE clause and set the result into a list of WHERE parts
@@ -141,9 +144,17 @@ public class WhereVisitor<T, ID> extends AqlBaseVisitor<List<Object>> {
 			List<Object> invokeExpr = new ArrayList<>();
 			assert(((AqlParser.InvokeExprContext)ctx).INVOKE().getText().equals("INVOKE"));			
 			assert(((AqlParser.InvokeExprContext)ctx).OPEN_PAR().getText().equals("("));
-			assert(((AqlParser.InvokeExprContext)ctx).CLOSE_PAR().getText().equals(")"));  
-			invokeExpr.addAll((List<T>)tsserver.expand((ID)((AqlParser.InvokeExprContext)ctx).URIVALUE().getText()));
-			return invokeExpr; 
+			assert(((AqlParser.InvokeExprContext)ctx).CLOSE_PAR().getText().equals(")"));
+			String uri = ((AqlParser.InvokeExprContext)ctx).URIVALUE().getText();
+            String operator = uri.substring(0,uri.indexOf("?")).substring(uri.indexOf("$")+1);
+            try {
+                Method tsInvocation = tsserver.getClass().getMethod(operator, String.class);
+                System.out.println(tsserver.getClass().getSimpleName());
+                invokeExpr.addAll((List<T>)tsInvocation.invoke(tsserver,uri));
+            } catch (Exception e) {
+                System.err.print("Did not find method tsserver." + operator);
+            }
+			return invokeExpr;
 		}
 
     @Override
